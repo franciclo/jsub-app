@@ -1,114 +1,126 @@
-import Auth0Lock from 'auth0-lock'
-const jwtDecode = require('jwt-decode')
+import jwtDecode from 'jwt-decode'
+import Cookie from 'js-cookie'
+import {logout as logoutLock} from '../utils/lock'
+
+const getQueryParams = () => {
+  const params = {}
+  window.location.href.replace(/([^(?|#)=&]+)(=([^&]*))?/g, ($0, $1, $2, $3) => {
+    params[$1] = $3
+  })
+  return params
+}
+
+const extractInfoFromHash = () => {
+  if (!process.browser) {
+    return undefined
+  }
+  const {id_token, state} = getQueryParams()
+  return {token: id_token, secret: state}
+}
+
+const checkSecret = (secret) => window.localStorage.secret === secret
+
+const setToken = (token) => {
+  if (!process.browser) {
+    return
+  }
+  window.localStorage.setItem('token', token)
+  Cookie.set('jwt', token)
+}
+
+export const setSecret = (secret) => window.localStorage.setItem('secret', secret)
+
+export function authenticate() {
+  const {token, secret} = extractInfoFromHash()
+  if (!checkSecret(secret) || !token) {
+    console.error('Something happened with the Sign In request')
+  }
+  setToken(token)
+}
 
 
-export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
-export const LOGIN_ERROR = 'LOGIN_ERROR'
 
-const lock = new Auth0Lock(
-  '0Rgk7qWeKjRuW5Dqa1PkFGPZk2Nt9KiZ',
-  'juntossomosunbosque.auth0.com'
-)
+function checkExpiry(jwtExp) {
+  let expiryDate = new Date(0);
+  expiryDate.setUTCSeconds(jwtExp);
 
-function loginSuccess(profile) {
+  if(new Date() < expiryDate) {
+    return true;
+  }
+}
+
+const LOGIN = 'LOGIN'
+
+export function login (jwt) {
   return {
-    type: LOGIN_SUCCESS,
-    profile
+    type: LOGIN,
+    user: jwt
   }
 }
 
-function loginError(error) {
+export const getUserFromLocalStorage = () => {
+  const jwtLocal = window.localStorage.token
+  if(!jwtLocal) return undefined
+
+  const jwt = jwtDecode(jwtLocal)
+  if (!checkExpiry(jwt.exp)) return undefined
+
+  return jwt
+}
+
+export const getUserFromCookie = (req) => {
+  if (!req || !req.headers.cookie) return undefined
+
+  const jwtCookie = req.headers.cookie.split(';').find(c => c.trim().startsWith('jwt='))
+  if (!jwtCookie) return undefined
+
+  const jwt = jwtDecode(jwtCookie.split('=')[1])
+  if (!checkExpiry(jwt.exp)) return undefined
+
+  return jwt
+}
+
+
+
+const unsetToken = () => {
+  if (!process.browser) {
+    return
+  }
+  window.localStorage.removeItem('token')
+  window.localStorage.removeItem('secret')
+  Cookie.remove('jwt')
+
+  window.localStorage.setItem('logout', Date.now())
+}
+
+const LOGOUT = 'LOGOUT'
+
+export function logout () {
+  unsetToken()
+  logoutLock()
   return {
-    type: LOGIN_ERROR,
-    error
+    type: LOGOUT
   }
 }
 
-export function login() {
-  // display the lock widget
-  return dispatch => {
-    lock.show();
-  }
-}
-
-
-export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
-
-function logoutSuccess(profile) {
-  return {
-    type: LOGOUT_SUCCESS
-  }
-}
-
-export function logout() {
-  return dispatch => {
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('profile');
-    return dispatch(logoutSuccess());
-  }
-}
-// Listen to authenticated event and get the profile of the user
-export function doAuthentication() {
-    return dispatch => {
-      lock.on("authenticated", function(authResult) {
-            lock.getProfile(authResult.idToken, function(error, profile) {
-
-              if (error) {
-                // handle error
-                return dispatch(loginError(error))
-              }
-
-              localStorage.setItem('profile', JSON.stringify(profile))
-              localStorage.setItem('id_token', authResult.idToken)
-              return dispatch(loginSuccess(profile))
-            });
-      });
-    }
-}
 
 
 export default function reducer (state = {
-    isAuthenticated: checkTokenExpiry(),
-    profile: getProfile(),
-    error: ''
+    isAuthenticated: false,
+    user: {}
   }, action) {
   switch (action.type) {
-    case LOGIN_SUCCESS:
+    case LOGIN:
       return Object.assign({}, state, {
         isAuthenticated: true,
-        profile: action.profile,
-        error: ''
+        user: action.user
       })
-    case LOGIN_ERROR:
+    case LOGOUT:
       return Object.assign({}, state, {
         isAuthenticated: false,
-        profile: null,
-        error: action.error
-      })
-    case LOGOUT_SUCCESS:
-      return Object.assign({}, state, {
-        isAuthenticated: false,
-        profile: null
+        user: null
       })
     default:
       return state
     }
-}
-
-function checkTokenExpiry() {
-  let jwt = localStorage.getItem('id_token')
-  if(jwt) {
-    let jwtExp = jwtDecode(jwt).exp;
-    let expiryDate = new Date(0);
-    expiryDate.setUTCSeconds(jwtExp);
-
-    if(new Date() < expiryDate) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function getProfile() {
-  return JSON.parse(localStorage.getItem('profile'));
 }

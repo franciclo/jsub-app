@@ -12,9 +12,11 @@
   "homepage": "https://github.com/franciclo/jsub-app#readme",
   "dependencies": {
     "auth0-lock": "^10.7.2",
-    "next": "^1.1.2",
+    "js-cookie": "^2.1.3",
+    "jwt-decode": "^2.1.0",
+    "next": "^1.2.3",
     "react-redux": "^4.4.6",
     "redux": "^3.6.0",
-    "redux-form": "^6.2.1"
+    "uuid": "^3.0.1"
   }
 }

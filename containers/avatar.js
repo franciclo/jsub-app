@@ -4,10 +4,6 @@ import {show} from '../utils/lock'
 import {logout} from '../actions/auth'
 
 class avatar extends Component {
-  componentDidMount () {
-    console.log('this.props.auth', this.props.auth)
-  }
-
   render() {
     return (
       <div>

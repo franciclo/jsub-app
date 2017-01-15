@@ -18,7 +18,7 @@ class avatar extends Component {
           this.props.auth.isAuthenticated &&
           (
             <div>
-              <span>hola {this.props.auth.user.email}</span>
+              <p>hola {this.props.auth.user.nickname}</p>
               <button onClick={logout}>Cerrar sesion</button>
             </div>
           )

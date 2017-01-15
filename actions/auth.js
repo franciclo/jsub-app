@@ -40,7 +40,7 @@ export function authenticate() {
 
 
 
-function checkExpiry(jwtExp) {
+export function checkExpiry(jwtExp) {
   let expiryDate = new Date(0);
   expiryDate.setUTCSeconds(jwtExp);
 
@@ -58,28 +58,30 @@ export function login (jwt) {
   }
 }
 
-export const getUserFromLocalStorage = () => {
+export const getTokenFromLocalStorage = () => {
   const jwtLocal = window.localStorage.token
   if(!jwtLocal) return undefined
-
-  const jwt = jwtDecode(jwtLocal)
-  if (!checkExpiry(jwt.exp)) return undefined
-
-  return jwt
+  return jwtLocal
 }
 
-export const getUserFromCookie = (req) => {
-  if (!req || !req.headers.cookie) return undefined
-
-  const jwtCookie = req.headers.cookie.split(';').find(c => c.trim().startsWith('jwt='))
+export const getTokenFromCookie = (cookie) => {
+  const jwtCookie = cookie.split(';').find(c => c.trim().startsWith('jwt='))
   if (!jwtCookie) return undefined
-
-  const jwt = jwtDecode(jwtCookie.split('=')[1])
-  if (!checkExpiry(jwt.exp)) return undefined
-
-  return jwt
+  return jwtCookie.split('=')[1]
 }
 
+export function getToken (raw, req) {
+  let token = req
+    ? req.headers.cookie
+      ? getTokenFromCookie(req.headers.cookie)
+      : undefined
+    : typeof localStorage !== 'undefined'
+      ? getTokenFromLocalStorage()
+      : undefined
+  if (raw) return token
+  const jwt = jwtDecode(token)
+  return jwt
+}
 
 
 const unsetToken = () => {

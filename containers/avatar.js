@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import {show} from '../utils/lock'
-import {logout} from '../actions/auth'
+import {getToken, logout} from '../actions/auth'
+import fetch from 'isomorphic-fetch'
 
 class avatar extends Component {
   render() {

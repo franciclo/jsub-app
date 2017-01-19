@@ -1,14 +1,13 @@
 import fetch from 'isomorphic-fetch'
 import config from '../config.json'
-import {getToken} from '../actions/auth'
 
 export const API_ROOT = config.API_ROOT
 
-function callApi(endpoint, authenticatedRequest, token) {
+function callApi(endpoint, authenticatedRequest) {
   let config = {}
 
   if(authenticatedRequest) {
-    token = token || getToken(true, false)
+    token = localStorage.token
     if(token) {
       config = {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -31,7 +30,7 @@ function callApi(endpoint, authenticatedRequest, token) {
     })
 }
 
-export const CALL_API = Symbol('Call API')
+export const CALL_API = 'CALL_API'
 
 export default store => next => action => {
 
@@ -44,15 +43,15 @@ export default store => next => action => {
   let { endpoint, types, authenticatedRequest, token } = callAPI
 
   if (typeof endpoint !== 'string') {
-    throw new Error('Specify a string endpoint URL.')
+    throw new Error('Specify a string endpoint URL. api middleware.')
   }
 
   if (!Array.isArray(types) || types.length !== 3) {
-    throw new Error('Expected an array of three action types.')
+    throw new Error('Expected an array of three action types. api middleware.')
   }
 
   if (!types.every(type => typeof type === 'string')) {
-    throw new Error('Expected action types to be strings.')
+    throw new Error('Expected action types to be strings. api middleware.')
   }
 
   function actionWith(data) {

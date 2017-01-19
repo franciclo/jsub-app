@@ -11,7 +11,6 @@
   },
   "homepage": "https://github.com/franciclo/jsub-app#readme",
   "dependencies": {
-    "auth0-lock": "^10.7.2",
     "isomorphic-fetch": "^2.2.1",
     "js-cookie": "^2.1.3",
     "jwt-decode": "^2.1.0",

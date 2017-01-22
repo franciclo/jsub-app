@@ -2,6 +2,7 @@ import config from '../config.json'
 
 export const getMap = (onLoad) => {
   mapboxgl.accessToken = config.MAPBOX_ACCESS_TOKEN
+
   const mapCenter = (() => {
     let loc = [-58.442947, -34.539081]
     if(localStorage.location) {
@@ -14,15 +15,16 @@ export const getMap = (onLoad) => {
     }
     return loc
   })()
+
   const map = new mapboxgl
     .Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/outdoors-v9',
       center: mapCenter,
-      zoom: 12
+      zoom: localStorage.location ? 12 : 8,
+      minZoom: 8
     })
-  map.addControl(new mapboxgl.GeolocateControl(), 'bottom-right')
-  map.addControl(new mapboxgl.NavigationControl(), 'bottom-right')
+
   map.on('load', function () { onLoad && onLoad(map) });
 
  if (navigator.geolocation && !localStorage.location) {

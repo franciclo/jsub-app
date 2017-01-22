@@ -1,6 +1,6 @@
 import config from '../config.json'
 
-export const getMap = (onLoad) => {
+export const initMap = (onLoad) => {
   mapboxgl.accessToken = config.MAPBOX_ACCESS_TOKEN
 
   const mapCenter = (() => {
@@ -37,6 +37,7 @@ export const getMap = (onLoad) => {
        ]
        localStorage.setItem('location', JSON.stringify(currentLocation))
        map.setCenter(currentLocation)
+       map.setZoom(12)
      },
      null,
      {

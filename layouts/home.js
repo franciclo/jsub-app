@@ -1,14 +1,9 @@
 import React, {Component} from 'react'
 import Head from 'next/head'
 import { Provider } from 'react-redux'
-import Avatar from '../containers/avatar'
-import Arboles from '../containers/arboles'
-import Mapa from '../containers/mapa'
 
-export default (props) => {
-  console.log(props)
+export default ({ children, store }) => {
   return (
-    <Provider store={props.store}>
       <div>
         <Head>
           <title>Juntos somos un bosque</title>
@@ -18,10 +13,9 @@ export default (props) => {
           <script src='https://api.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.js'></script>
           <link href='https://api.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css' rel='stylesheet' />
         </Head>
-        <Avatar {...props} />
-        <Arboles {...props} />
-        <Mapa />
+        <Provider store={ store }>
+          { children }
+        </Provider>
       </div>
-    </Provider>
   )
 }

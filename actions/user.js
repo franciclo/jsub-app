@@ -4,17 +4,18 @@ import {logout as logoutLock} from '../utils/lock'
 import {unsetToken} from '../utils/auth'
 
 const LOGIN = 'LOGIN'
-export function login (jwt) {
+export function login (profile) {
   return {
     type: LOGIN,
-    user: jwt
+    profile
   }
 }
 
 const LOGOUT = 'LOGOUT'
 export function logout () {
   unsetToken()
-  logoutLock()
+  // logoutLock()
+  console.log('logout')
   return {
     type: LOGOUT
   }

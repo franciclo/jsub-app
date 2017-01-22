@@ -4,7 +4,7 @@ import {loadArboles} from '../actions/arboles'
 
 class arboles extends Component {
   componentDidMount () {
-    this.props.loadArboles()
+    // this.props.loadArboles()
   }
 
   render() {

@@ -1,5 +1,7 @@
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
+import fetch from 'isomorphic-fetch'
+import config from '../config.json'
 
 // get auth0 callback data from hash
 const getQueryParams = () => {
@@ -23,7 +25,7 @@ export const setToken = (token) => {
   window.localStorage.setItem('token', token)
   Cookie.set('jwt', token)
 }
-const unsetToken = () => {
+export const unsetToken = () => {
   window.localStorage.removeItem('token')
   window.localStorage.removeItem('secret')
   Cookie.remove('jwt')
@@ -32,12 +34,12 @@ const unsetToken = () => {
 }
 
 // get token
-const getJwtFromLocalStorage = () => {
+function getJwtFromLocalStorage() {
   const jwtLocal = window.localStorage.token
   if(!jwtLocal) return undefined
   return jwtLocal
 }
-export const getJwtFromCookie = (cookie) => {
+export function getJwtFromCookie(cookie) {
   const jwtCookie = cookie.split(';').find(c => c.trim().startsWith('jwt='))
   if (!jwtCookie) return undefined
   return jwtCookie.split('=')[1]
@@ -52,23 +54,36 @@ function checkExpiry(jwtExp) {
 }
 
 // use token
-export function decodeToken (token) {
+export function decodeToken(token) {
+  if (!token) return false
+  let jwt
   try {
-    const jwt = jwtDecode(token)
+    jwt = jwtDecode(token)
   } catch (err) {
-    console.error('token decode fail')
-    return false
+    console.error('token decode fail', err)
+    jwt = false
   }
-  return checkExpiry(jwt.exp) && jwt
+  if(!jwt || !checkExpiry(jwt.exp)) return false
+  return jwt
 }
 
 // set user data
 export function authenticate() {
   const {token, secret} = extractInfoFromHash()
   history.pushState(null, null, '/')
-  if (!checkSecret(secret) || !token) {
-    console.error('auth token failed')
-    return
-  }
+  if (!checkSecret(secret) || !token) return
   setToken(token)
+  return token
+}
+
+// get auth0 user profile
+export function getProfile(id, token) {
+  return fetch(`https://${config.AUTH0_CLIENT_DOMAIN}/api/v2/users/${id}?fields=email,nickname,picture`,{
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .catch(err => {
+      console.error('get profile error', `${config.AUTH0_CLIENT_DOMAIN}/api/v2/users/${id}?fields=email,nickname,picture`, err)
+      return Promise.resolve(false)
+    })
 }

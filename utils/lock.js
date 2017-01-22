@@ -1,6 +1,6 @@
 import uuid from 'uuid'
 import config from '../config.json'
-import { setSecret } from '../actions/auth'
+import { setSecret } from './auth'
 
 const getLock = (options) => {
   return new Auth0Lock(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_DOMAIN, options)
@@ -12,7 +12,11 @@ const getOptions = () => {
   const secret = uuid.v4()
   setSecret(secret)
   return {
-    auth: {params: {state: secret}},
+    auth: {
+      responseType: 'token',
+      redirectUrl: `${getBaseUrl()}`,
+      params: {state: secret}
+    },
     allowedConnections: ["Username-Password-Authentication","facebook"],
     socialButtonStyle: "small",
     theme: {
@@ -26,4 +30,4 @@ const getOptions = () => {
 
 export const show = () => getLock(getOptions()).show()
 
-export const logout = () => getLock().logout({ returnTo: getBaseUrl() })
+export const logout = () => getLock().logout()

@@ -15,7 +15,8 @@ class mapa extends Component {
           height: '100%',
           top: 0,
           left: 0,
-          zIndex: -1
+          zIndex: -1,
+          background: '#eee'
         }}
         id='map'>
       </div>

@@ -1,26 +1,42 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import fetch from 'isomorphic-fetch'
-import {show as showLock} from '../utils/lock'
-import {logout} from '../actions/user'
+import { show as showLock } from '../utils/lock'
+import { logout } from '../actions/user'
+import { toggleBox } from '../actions/boxes'
 import UserPic from '../components/user-pic'
+import UserBox from '../components/user-box'
 
-export default connect(
-  state => state,
-  dispatch => ({
-    onLogout: () => dispatch(logout())
-  })
-)(({ user, onLogout }) => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    right: 0,
-    margin: '15px 30px 0 0'
-  }}>
+const User = ({
+    user,
+    onLogout,
+    boxVisible,
+    onToggleBox
+  }) => (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      margin: '15px 30px 0 0'
+    }}>
     {
       (user && user.isAuthenticated)
       ? (
-        <UserPic src={user.profile.picture} />
+        <div>
+          <UserPic
+            picture={user.profile.picture}
+            onToggleBox={onToggleBox}
+            boxVisible={boxVisible} />
+          {
+            boxVisible &&
+              <UserBox
+                onLogout={onLogout}
+                onToggleBox={onToggleBox}
+                picture={user.profile.picture}
+                nickname={user.profile.nickname} />
+          }
+        </div>
       )
       : (
         <button
@@ -41,4 +57,15 @@ export default connect(
       )
     }
   </div>
-))
+)
+
+export default connect(
+  state => ({
+    user: state.user,
+    boxVisible: state.boxes.visible === 'user'
+  }),
+  dispatch => ({
+    onLogout: () => dispatch(logout()),
+    onToggleBox: () => dispatch(toggleBox('user'))
+  })
+)(User)

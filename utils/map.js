@@ -25,7 +25,34 @@ export const initMap = (onLoad) => {
       minZoom: 8
     })
 
-  map.on('load', function () { onLoad && onLoad(map) });
+  map.on('load', function () {
+    map.addLayer({
+      id: 'viveros-data',
+      type: 'circle',
+      source: {
+        type: 'vector',
+        url: 'mapbox://franciclo.60hn6rea'
+      },
+      'source-layer': 'viveros-dpwoee',
+      paint: {
+        'circle-color': '#f0f',
+        'circle-radius': 18
+      }
+    });
+    map.on('movestart', function(e) {
+      var features = map.queryRenderedFeatures(e.point, {
+         layers: ['viveros-data']
+      })
+      console.log(features.map(f => f.properties.id))
+    })
+    map.on('moveend', function(e) {
+      var features = map.queryRenderedFeatures(e.point, {
+         layers: ['viveros-data']
+      })
+      console.log(features.map(f => f.properties.id))
+    })
+    onLoad && onLoad(map)
+  });
 
  if (navigator.geolocation && !localStorage.location) {
    navigator.geolocation.getCurrentPosition(

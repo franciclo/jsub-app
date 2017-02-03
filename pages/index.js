@@ -53,7 +53,7 @@ export default class HomeIndex extends Component {
         <div>
           <User />
           <Arboles />
-          <Mapa />
+          <Mapa store={this.store} />
         </div>
       </Home>
      )

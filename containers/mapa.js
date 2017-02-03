@@ -4,8 +4,30 @@ import {initMap} from '../utils/map'
 
 class mapa extends Component {
   componentDidMount () {
-    initMap()
+    initMap(this.onMapLoad)
   }
+
+  updateVisisbleViveros(map) {
+    return () => {
+      const features = map.queryRenderedFeatures({
+         layers: ['viveros-data']
+      }) || []
+      const userIds = features.map(f => f.properties.user)
+      this.props.store.dispatch({
+        type: 'SET_VISIBLE_VIVEROS_IDS',
+        viveros: userIds
+      })
+      console.log(userIds)
+    }
+  }
+
+  onMapLoad = (map) => {
+    console.log('map load')
+    map.on('movestart', this.updateVisisbleViveros(map))
+    map.on('moveend', this.updateVisisbleViveros(map))
+    this.updateVisisbleViveros(map)()
+  }
+
   render() {
     return (
       <div

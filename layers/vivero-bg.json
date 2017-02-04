@@ -1,0 +1,10 @@
+{
+  "id": "vivero-bg",
+  "type": "circle",
+  "source": "viveros-stock",
+  "filter": ["!has", "point_count"],
+  "paint": {
+    "circle-color": "rgb(255, 223, 61)",
+    "circle-radius": 15
+  }
+}

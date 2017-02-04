@@ -1,4 +1,9 @@
 import config from '../config.json'
+import viveroBg from '../layers/vivero-bg.json'
+import viveroCount from '../layers/vivero-count.json'
+import clusterBg from '../layers/cluster-bg.json'
+import clusterCount from '../layers/cluster-count.json'
+
 
 function mapCenter() {
   let loc = [-58.442947, -34.539081]
@@ -34,18 +39,18 @@ function checkLocation (map) {
   )
 }
 
-const viveroSourceLayer = {
-  id: 'viveros-data',
-  type: 'circle',
-  source: {
-    type: 'vector',
-    url: 'mapbox://franciclo.60hn6rea'
+const viverosStockSource = {
+  type: 'geojson',
+  data: {
+    type: 'FeatureCollection',
+    features: [{
+      'type': 'Feature',
+      'geometry': { 'type': 'Point', 'coordinates': [] }
+    }]
   },
-  'source-layer': 'viveros-dpwoee',
-  paint: {
-    'circle-color': '#f0f',
-    'circle-radius': 18
-  }
+  cluster: true,
+  clusterMaxZoom: 22,
+  clusterRadius: 15
 }
 
 export const initMap = (onLoad) => {
@@ -53,7 +58,7 @@ export const initMap = (onLoad) => {
   const map = new mapboxgl
     .Map({
       container: 'map',
-      style: 'mapbox://styles/mapbox/outdoors-v9',
+      style: 'mapbox://styles/franciclo/ciyrc526h002l2rpd4uxnxkph',
       center: mapCenter(),
       zoom: localStorage.location ? 12 : 10,
       minZoom: 10
@@ -61,8 +66,13 @@ export const initMap = (onLoad) => {
 
   map.on('load', function () {
     checkLocation(map)
-    map.on('error', e => { console.error('MAPBOX ERROR ', e.error.message, e.error.stack) })
-    map.addLayer(viveroSourceLayer)
-    map.once('tiledata', () => { onLoad(map) })
+    map.on('error', e => { console.error('MAPBOX ERROR ', e.error.message || e.error, e.error.stack || e) })
+    map.addSource('viveros-stock', viverosStockSource)
+    map.addLayer(viveroBg)
+    map.addLayer(viveroCount)
+    map.addLayer(clusterBg)
+    map.addLayer(clusterCount)
+    map.once('tiledata', onLoad)
   })
+  return map
 }

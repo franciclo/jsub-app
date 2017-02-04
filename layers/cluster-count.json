@@ -1,0 +1,13 @@
+{
+  "id": "cluster-count",
+  "type": "symbol",
+  "source": "viveros-stock",
+  "layout": {
+    "text-field": "{point_count}",
+    "text-font": [
+      "DIN Offc Pro Medium",
+      "Arial Unicode MS Bold"
+    ],
+    "text-size": 12
+  }
+}

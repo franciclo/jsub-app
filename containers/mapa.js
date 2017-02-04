@@ -4,30 +4,43 @@ import { initMap } from '../utils/map'
 import { setVisibleViveros } from '../actions/viveros'
 
 class mapa extends Component {
+  constructor (props) {
+    super(props)
+    this.map = null
+    this.state = {
+      mbSuported: true
+    }
+  }
   componentDidMount () {
-    initMap(this.onMapLoad)
+    this.map = initMap(this.onMapLoad)
   }
 
-  getVisisbleViveros(map) {
+  getVisisbleViveros = () => {
     return () => {
-      const features = map.queryRenderedFeatures({
-         layers: ['viveros-data']
+      const features = this.map.queryRenderedFeatures({
+         layers: ['viveros-points']
       }) || []
-      const viverosIds = features.map(f => f.properties.user)
-      console.log(features.map(f => Object.keys(f.properties)[0]))
+      const viverosIds = features.map(f => f.properties.id)
       this.props.setVisibleViveros(viverosIds)
     }
   }
 
-  onMapLoad = (map) => {
-    console.log('on load map')
-    const getVV = this.getVisisbleViveros(map)
-    map.on('movestart', getVV)
-    map.on('moveend', getVV)
+  onMapLoad = () => {
+    const getVV = this.getVisisbleViveros()
+    this.map.on('movestart', getVV)
+    this.map.on('moveend', getVV)
     getVV()
   }
 
   render() {
+    if (this.map) {
+      const { viveros } = this.props
+      this.map.getSource('viveros-stock')
+        .setData({
+          type: 'FeatureCollection',
+          features: viveros.all
+        })
+    }
     return (
       <div
         style={{
@@ -45,7 +58,7 @@ class mapa extends Component {
   }
 }
 const Mapa = connect(
-  state => state,
+  state => ({ viveros: state.viveros }),
   { setVisibleViveros }
 )(mapa)
 

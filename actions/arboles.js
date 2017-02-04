@@ -16,7 +16,7 @@ export function fetchArboles() {
 
 export function loadArboles() {
   return dispatch => {
-    return dispatch(fetchArboles())
+    dispatch(fetchArboles())
   }
 }
 

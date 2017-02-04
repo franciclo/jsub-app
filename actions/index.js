@@ -1,10 +1,12 @@
-import user from './user.js'
-import arboles from './arboles.js'
-import boxes from './boxes.js'
+import user from './user'
+import arboles from './arboles'
+import boxes from './boxes'
+import viveros from './viveros'
 import { combineReducers } from 'redux'
 
 export default combineReducers({
   user,
   arboles,
-  boxes
+  boxes,
+  viveros
 })

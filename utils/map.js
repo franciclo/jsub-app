@@ -6,7 +6,7 @@ function mapCenter() {
     try {
       loc = JSON.parse(localStorage.location)
     } catch (err) {
-      console.log('invalid location in storage')
+      loc = [-58.442947, -34.539081]
       localStorage.removeItem('location')
     }
   }
@@ -61,11 +61,8 @@ export const initMap = (onLoad) => {
 
   map.on('load', function () {
     checkLocation(map)
-    map.on('error', e => { console.error('MAPBOX ERROR ', e.error.message); console.error(e.error.stack) })
+    map.on('error', e => { console.error('MAPBOX ERROR ', e.error.message, e.error.stack) })
     map.addLayer(viveroSourceLayer)
-    map.on('tiledata', function (e) {
-      onLoad && onLoad(map)
-    })
-
+    map.once('tiledata', () => { onLoad(map) })
   })
 }

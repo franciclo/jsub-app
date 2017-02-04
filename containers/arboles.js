@@ -19,7 +19,7 @@ class arboles extends Component {
 }
 const Arboles = connect(
   state => state,
-  {loadArboles}
+  { loadArboles }
 )(arboles)
 
 export default Arboles

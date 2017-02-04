@@ -1,31 +1,29 @@
-import React, {Component} from 'react'
-import {connect} from 'react-redux'
-import {initMap} from '../utils/map'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { initMap } from '../utils/map'
+import { setVisibleViveros } from '../actions/viveros'
 
 class mapa extends Component {
   componentDidMount () {
     initMap(this.onMapLoad)
   }
 
-  updateVisisbleViveros(map) {
+  getVisisbleViveros(map) {
     return () => {
       const features = map.queryRenderedFeatures({
          layers: ['viveros-data']
       }) || []
-      const userIds = features.map(f => f.properties.user)
-      this.props.store.dispatch({
-        type: 'SET_VISIBLE_VIVEROS_IDS',
-        viveros: userIds
-      })
-      console.log(userIds)
+      const viverosIds = features.map(f => f.properties.id)
+      console.log(features)
+      this.props.setVisibleViveros(viverosIds)
     }
   }
 
   onMapLoad = (map) => {
-    console.log('map load')
-    map.on('movestart', this.updateVisisbleViveros(map))
-    map.on('moveend', this.updateVisisbleViveros(map))
-    this.updateVisisbleViveros(map)()
+    const getVV = this.getVisisbleViveros(map)
+    map.on('movestart', getVV)
+    map.on('moveend', getVV)
+    getVV()
   }
 
   render() {
@@ -46,7 +44,8 @@ class mapa extends Component {
   }
 }
 const Mapa = connect(
-  state => state
+  state => state,
+  { setVisibleViveros }
 )(mapa)
 
 export default Mapa

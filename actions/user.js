@@ -14,8 +14,6 @@ export function login (profile) {
 const LOGOUT = 'LOGOUT'
 export function logout () {
   unsetToken()
-  // logoutLock()
-  console.log('logout')
   return {
     type: LOGOUT
   }

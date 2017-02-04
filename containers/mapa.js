@@ -7,27 +7,24 @@ class mapa extends Component {
   constructor (props) {
     super(props)
     this.map = null
-    this.state = {
-      mbSuported: true
-    }
   }
+
   componentDidMount () {
     this.map = initMap(this.onMapLoad)
   }
 
-  getVisisbleViveros = () => {
+  getVisibleViveros = () => {
     return () => {
       const features = this.map.queryRenderedFeatures({
          layers: ['viveros-points']
       }) || []
-      const viverosIds = [...new Set(features.map(f => f.properties.id))]
-      console.log('viverosIds', viverosIds)
-      this.props.setVisibleViveros(viverosIds)
+      const uniqueIds = [...new Set(features.map(f => f.properties.id))]
+      this.props.setVisibleViveros(uniqueIds)
     }
   }
 
   onMapLoad = () => {
-    const getVV = this.getVisisbleViveros()
+    const getVV = this.getVisibleViveros()
     this.map.on('movestart', getVV)
     this.map.on('moveend', getVV)
     getVV()
@@ -39,26 +36,10 @@ class mapa extends Component {
       this.map.getSource('viveros-stock')
         .setData({
           type: 'FeatureCollection',
-          features: viveros.all.map(v => {
-            v.properties.total = vivero.properties.stock.reduce((acc, s) => {
-              const cantidades = Object.keys(s).filter(k => k !== 'especie')
-              const total = cantidades.reduce((acc, v) => s[v] + acc, 0)
-              return total + acc
-            }, 0)
-            delete v.properties.stock
-            return v
-          })
+          features: viveros
         })
-      console.log( viveros.all.map(v => {
-        v.properties.total = vivero.properties.stock.reduce((acc, s) => {
-          const cantidades = Object.keys(s).filter(k => k !== 'especie')
-          const total = cantidades.reduce((acc, v) => s[v] + acc, 0)
-          return total + acc
-        }, 0)
-        delete v.properties.stock
-        return v
-      }))
     }
+
     return (
       <div
         style={{
@@ -75,8 +56,20 @@ class mapa extends Component {
     )
   }
 }
+
+function getTotalesViveros (viveros) {
+  return viveros.all.map(vivero => {
+    v.properties.total = vivero.properties.stock.cantidades.reduce((acc, cantidades) => {
+      const total = cantidades.reduce((acc, item) => item.cantidad + acc, 0)
+      return total + acc
+    }, 0)
+    delete vivero.properties.stock
+    return vivero
+  })
+}
+
 const Mapa = connect(
-  state => ({ viveros: state.viveros }),
+  state => ({ viveros: getTotalesViveros(state.viveros) }),
   { setVisibleViveros }
 )(mapa)
 

@@ -8,7 +8,7 @@ export function setVisibleViveros(ids) {
   return (dispatch, getState) => {
     const { viveros } = getState()
     const savedIds = new Set(viveros.all.map(v => v.properties.id))
-    const newIds = [...new Set(ids.filter(x => !savedIds.has(x)))]
+    const newIds = ids.filter(id => !savedIds.has(id))
 
     if (newIds.length !== 0) {
       fetch(`${config.API_ROOT}/viveros/stock/${newIds.join(',')}`)

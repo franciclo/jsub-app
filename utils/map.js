@@ -4,7 +4,6 @@ import viveroCount from '../layers/vivero-count.json'
 import clusterBg from '../layers/cluster-bg.json'
 import clusterCount from '../layers/cluster-count.json'
 
-
 function mapCenter() {
   let loc = [-58.442947, -34.539081]
   if(localStorage.location) {
@@ -66,7 +65,11 @@ export const initMap = (onLoad) => {
 
   map.on('load', function () {
     checkLocation(map)
-    map.on('error', e => { console.error('MAPBOX ERROR ', e.error.message || e.error, e.error.stack || e) })
+    map.on('error', e => {
+      const msg = e.error.message || e.error
+      const info = e.error.stack || e
+      console.error('MAPBOX ERROR ', msg, info)
+    })
     map.addSource('viveros-stock', viverosStockSource)
     map.addLayer(viveroBg)
     map.addLayer(viveroCount)

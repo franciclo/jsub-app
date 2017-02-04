@@ -13,13 +13,14 @@ class mapa extends Component {
       const features = map.queryRenderedFeatures({
          layers: ['viveros-data']
       }) || []
-      const viverosIds = features.map(f => f.properties.id)
-      console.log(features)
+      const viverosIds = features.map(f => f.properties.user)
+      console.log(features.map(f => Object.keys(f.properties)[0]))
       this.props.setVisibleViveros(viverosIds)
     }
   }
 
   onMapLoad = (map) => {
+    console.log('on load map')
     const getVV = this.getVisisbleViveros(map)
     map.on('movestart', getVV)
     map.on('moveend', getVV)

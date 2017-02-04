@@ -23,3 +23,11 @@ const Arboles = connect(
 )(arboles)
 
 export default Arboles
+
+// 
+// vivero.properties.stock.map(s => {
+//             const cantidades = Object.keys(s).filter(k => k !== 'especie')
+//             const total = cantidades.reduce((acc, v) => s[v] + acc, 0)
+//             s.total = total
+//             return s
+//           })

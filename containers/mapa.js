@@ -20,7 +20,8 @@ class mapa extends Component {
       const features = this.map.queryRenderedFeatures({
          layers: ['viveros-points']
       }) || []
-      const viverosIds = features.map(f => f.properties.id)
+      const viverosIds = [...new Set(features.map(f => f.properties.id))]
+      console.log('viverosIds', viverosIds)
       this.props.setVisibleViveros(viverosIds)
     }
   }
@@ -38,8 +39,25 @@ class mapa extends Component {
       this.map.getSource('viveros-stock')
         .setData({
           type: 'FeatureCollection',
-          features: viveros.all
+          features: viveros.all.map(v => {
+            v.properties.total = vivero.properties.stock.reduce((acc, s) => {
+              const cantidades = Object.keys(s).filter(k => k !== 'especie')
+              const total = cantidades.reduce((acc, v) => s[v] + acc, 0)
+              return total + acc
+            }, 0)
+            delete v.properties.stock
+            return v
+          })
         })
+      console.log( viveros.all.map(v => {
+        v.properties.total = vivero.properties.stock.reduce((acc, s) => {
+          const cantidades = Object.keys(s).filter(k => k !== 'especie')
+          const total = cantidades.reduce((acc, v) => s[v] + acc, 0)
+          return total + acc
+        }, 0)
+        delete v.properties.stock
+        return v
+      }))
     }
     return (
       <div

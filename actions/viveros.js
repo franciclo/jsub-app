@@ -6,26 +6,32 @@ export const ADD_VIVEROS = 'ADD_VIVEROS'
 
 export function setVisibleViveros(ids) {
   return (dispatch, getState) => {
-    dispatch({
-      type: SET_VISIBLE_VIVEROS,
-      ids
-    })
-
     const { viveros } = getState()
     const savedIds = new Set(viveros.all.map(v => v.properties.id))
     const newIds = [...new Set(ids.filter(x => !savedIds.has(x)))]
-    if (newIds.length) {
-      console.log('newIds', newIds)
+
+    if (newIds.length !== 0) {
       fetch(`${config.API_ROOT}/viveros/stock/${newIds.join(',')}`)
         .then(res => res.ok && res.json())
         .then(result => {
           if(!result) return
+
           dispatch({
             type: ADD_VIVEROS,
             viveros: result
           })
+
+          dispatch({
+            type: SET_VISIBLE_VIVEROS,
+            ids
+          })
         })
         .catch(err => { console.error('fetch stock error ', err) })
+    } else {
+      dispatch({
+        type: SET_VISIBLE_VIVEROS,
+        ids
+      })
     }
   }
 }

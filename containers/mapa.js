@@ -72,13 +72,11 @@ class mapa extends Component {
 
 function getTotalesViveros (viveros) {
   return viveros.all.map(vivero => {
-    v.properties.total = vivero.properties.stock.cantidades.reduce((acc, cantidades) => {
-      const total = cantidades.reduce((acc, item) => item.cantidad + acc, 0)
+    vivero.properties.total = vivero.properties.stock.reduce((acc, item) => {
+      const total = item.cantidades.reduce((acc, item) => item.cantidad + acc, 0)
 
       return total + acc
     }, 0)
-
-    delete vivero.properties.stock
 
     return vivero
   })

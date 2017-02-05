@@ -14,8 +14,6 @@ export function setVisibleViveros(ids) {
       fetch(`${config.API_ROOT}/viveros/stock/${newIds.join(',')}`)
         .then(res => res.ok && res.json())
         .then(result => {
-          if(!result) return
-
           dispatch({
             type: ADD_VIVEROS,
             viveros: result

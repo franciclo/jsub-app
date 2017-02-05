@@ -9,7 +9,7 @@ export default function initStore (initialState) {
     return createStore(reducer, initialState, applyMiddleware(thunkMiddleware, apiMiddleware))
   } else {
     if (!window.store) {
-      window.store = createStore(reducer, initialState, applyMiddleware(thunkMiddleware, apiMiddleware))//, loggerMiddleware()))
+      window.store = createStore(reducer, initialState, applyMiddleware(thunkMiddleware, apiMiddleware, loggerMiddleware()))
     }
     return window.store
   }

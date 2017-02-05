@@ -6,6 +6,7 @@ import { setVisibleViveros } from '../actions/viveros'
 class mapa extends Component {
   constructor (props) {
     super(props)
+    this.state = { mapLoaded: false }
     this.map = null
   }
 
@@ -18,12 +19,19 @@ class mapa extends Component {
       const features = this.map.queryRenderedFeatures({
          layers: ['viveros-points']
       }) || []
+
       const uniqueIds = [...new Set(features.map(f => f.properties.id))]
       this.props.setVisibleViveros(uniqueIds)
     }
   }
 
-  onMapLoad = () => {
+  onMapLoad = (e) => {
+    this.setState({mapLoaded: true})
+
+    const isStockLoaded = this.map.isSourceLoaded('viveros-stock')
+    if(!isStockLoaded) return
+    this.map.off('tiledata', this.onMapLoad)
+
     const getVV = this.getVisibleViveros()
     this.map.on('movestart', getVV)
     this.map.on('moveend', getVV)
@@ -31,8 +39,13 @@ class mapa extends Component {
   }
 
   render() {
-    if (this.map) {
+    if (
+      this.map &&
+      this.state.mapLoaded &&
+      this.map.isSourceLoaded('viveros-stock')
+    ) {
       const { viveros } = this.props
+
       this.map.getSource('viveros-stock')
         .setData({
           type: 'FeatureCollection',
@@ -61,9 +74,12 @@ function getTotalesViveros (viveros) {
   return viveros.all.map(vivero => {
     v.properties.total = vivero.properties.stock.cantidades.reduce((acc, cantidades) => {
       const total = cantidades.reduce((acc, item) => item.cantidad + acc, 0)
+
       return total + acc
     }, 0)
+
     delete vivero.properties.stock
+
     return vivero
   })
 }

@@ -64,18 +64,18 @@ export const initMap = (onLoad) => {
     })
 
   map.on('load', function () {
-    checkLocation(map)
     map.on('error', e => {
       const msg = e.error.message || e.error
       const info = e.error.stack || e
       console.error('MAPBOX ERROR ', msg, info)
     })
+    checkLocation(map)
     map.addSource('viveros-stock', viverosStockSource)
     map.addLayer(viveroBg)
     map.addLayer(viveroCount)
     map.addLayer(clusterBg)
     map.addLayer(clusterCount)
-    map.once('tiledata', onLoad)
+    map.on('tiledata', onLoad)
   })
   return map
 }

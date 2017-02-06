@@ -1,12 +1,14 @@
+import { combineReducers } from 'redux'
 import user from './user'
 import arboles from './arboles'
 import boxes from './boxes'
 import viveros from './viveros'
-import { combineReducers } from 'redux'
+import especies from './especies'
 
 export default combineReducers({
   user,
   arboles,
   boxes,
-  viveros
+  viveros,
+  especies
 })

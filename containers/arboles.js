@@ -8,45 +8,58 @@ class arboles extends Component {
   // }
 
   render() {
-    const { arboles } = this.props
-    console.log(arboles)
+    const { arboles, especies } = this.props
     return (
       <div
         style={{
           position: 'fixed',
-          overflow: 'auto',
-          height: '100%',
-          width: '300px',
-          background: '#fff'
+          top: '0',
+          left: '20px',
+          overflow: 'hidden',
+          width: '300px'
         }}>
-        {
-          arboles && arboles.map(arbol => {
-            return (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  margin: '10px'
-                }}>
-                <h1
+        <div
+          style={{
+            position: 'relative',
+            overflow: 'auto',
+            width: '280px',
+            maxHeight: '100vh',
+            borderBox: 'border-box',
+            padding: '20px 30px 0 0'
+
+          }}>
+          {
+            arboles && arboles.map((arbol, i) => {
+              return (
+                <div
+                  key={i}
                   style={{
-                    fontSize: '20px',
-                    margin: '0'
-                  }}>
-                  {arbol.especie}
-                </h1>
-                <i
-                  style={{
-                    borderRadius: '50%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     padding: '10px',
-                    background: '#ff0'
+                    margin: '0 0 10px 0',
+                    background: '#fff'
                   }}>
-                  {arbol.cantidad}
-                </i>
-              </div>
-            )
-          })
-        }
+                  <h1
+                    style={{
+                      fontSize: '20px',
+                      margin: '0'
+                    }}>
+                    {especies[arbol.especie]}
+                  </h1>
+                  <i
+                    style={{
+                      borderRadius: '50%',
+                      padding: '10px',
+                      background: '#ff0'
+                    }}>
+                    {arbol.cantidad}
+                  </i>
+                </div>
+              )
+            })
+          }
+        </div>
       </div>
     )
   }
@@ -82,7 +95,10 @@ function getVisibleArboles(visibleIds, viveros) {
 }
 
 const Arboles = connect(
-  state => ({ arboles: getVisibleArboles(state.viveros.visible, state.viveros.all) })
+  state => ({
+    arboles: getVisibleArboles(state.viveros.visible, state.viveros.all),
+    especies: state.especies
+  })
 )(arboles)
 
 export default Arboles

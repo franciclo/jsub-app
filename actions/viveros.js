@@ -56,7 +56,7 @@ export default function reducer(state = {
       })
     case ADD_VIVEROS:
       return Object.assign({}, state, {
-        all: state.all.concat(action.viveros)
+        all: [...new Set(state.all.concat(action.viveros))]
       })
     default:
       return state

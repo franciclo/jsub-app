@@ -13,6 +13,7 @@ export function setVisibleViveros(ids) {
     const newIds = ids.filter(id => !savedViverosIds.has(id))
 
     if (newIds.length !== 0) {
+      console.log('hay nuevos viveros', ids, [...savedViverosIds], newIds)
       fetch(`${config.API_ROOT}/viveros/stock/${newIds.join(',')}`)
         .then(res => res.ok && res.json())
         .then(result => {
@@ -23,7 +24,10 @@ export function setVisibleViveros(ids) {
             .reduce((acc, esp) => acc.concat(esp), [])
             .filter(esp => esp)
           const newEspecies = [...new Set(resultEspecies)].filter(esp => !savedEspeciesIds.has(esp))
-          if (newEspecies.length !== 0) dispatch(fetchEspecies(newEspecies))
+          if (newEspecies.length !== 0) {
+            console.log('hay nuevas especies', resultEspecies, [...savedEspeciesIds], newEspecies)
+            dispatch(fetchEspecies(newEspecies))
+          }
 
           dispatch({
             type: ADD_VIVEROS,
@@ -45,9 +49,28 @@ export function setVisibleViveros(ids) {
   }
 }
 
+export function totalPorEspecie (vivero) {
+  return vivero.properties.stock
+    .reduce((especiesAcc, stock) => {
+      const hasEspecie = ~Object.keys(especiesAcc).indexOf(stock.especie)
+      const subTotal = stock.cantidades.reduce((total, tamagno) => total + tamagno.cantidad, 0)
+      especiesAcc[stock.especie] = hasEspecie ? especiesAcc[stock.especie] + subTotal : subTotal
+      return especiesAcc
+    },{})
+}
+
+export const ACTIVE_ESPECIE = 'ACTIVE_ESPECIE'
+export function setActiveEspecie (especie) {
+  return {
+    type: ACTIVE_ESPECIE,
+    especie
+  }
+}
+
 export default function reducer(state = {
   visible: [],
-  all: []
+  all: [],
+  especie: 'ALL'
 }, action) {
   switch (action.type) {
     case SET_VISIBLE_VIVEROS:
@@ -56,7 +79,11 @@ export default function reducer(state = {
       })
     case ADD_VIVEROS:
       return Object.assign({}, state, {
-        all: [...new Set(state.all.concat(action.viveros))]
+        all: [...state.all, ...action.viveros]
+      })
+    case ACTIVE_ESPECIE:
+      return Object.assign({}, state, {
+        especie: action.especie
       })
     default:
       return state

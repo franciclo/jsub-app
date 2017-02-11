@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { initMap } from '../utils/map'
-import { setVisibleViveros } from '../actions/viveros'
+import { setVisibleViveros, totalPorEspecie } from '../actions/viveros'
 
 class mapa extends Component {
   constructor (props) {
@@ -72,13 +72,19 @@ class mapa extends Component {
 
 function getTotalesViveros (viveros) {
   return viveros.all.map(vivero => {
-    vivero.properties.total = vivero.properties.stock.reduce((acc, item) => {
-      const total = item.cantidades.reduce((acc, item) => item.cantidad + acc, 0)
+    return Object.assign({},
+      vivero,
+      {
+        properties: {
+          total: viveros.especie === 'ALL'
+            ? vivero.properties.stock.reduce((acc, item) => {
+              const total = item.cantidades.reduce((acc, item) => item.cantidad + acc, 0)
 
-      return total + acc
-    }, 0)
-
-    return vivero
+              return total + acc
+            }, 0)
+            : totalPorEspecie(vivero)[viveros.especie] || 0
+        }
+      })
   })
 }
 

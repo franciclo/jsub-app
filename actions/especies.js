@@ -3,7 +3,7 @@ import config from '../config.json'
 
 export const ADD_ESPECIES = 'ADD_ESPECIES'
 
-export function fetchEspecies(especies) {
+export function fetchEspecies (especies) {
   return dispatch => {
     fetch(`${config.API_ROOT}/especies/${especies.join(',')}`)
     .then(res => res.ok && res.json())

@@ -34,7 +34,7 @@ class arboles extends Component {
                 return (
                   <EspecieCard
                     key={i}
-                    cantidad={stock[especie].total}
+                    cantidades={stock[especie]}
                     especie={{ label: especies.all[especie].label, id: especies.all[especie].especieId }}
                     handleActiveEspecie={handleActiveEspecie} />
                 )

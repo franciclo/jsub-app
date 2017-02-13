@@ -2,8 +2,31 @@ import fetch from 'isomorphic-fetch'
 import config from '../config.json'
 import { setVisibleEspecies } from '../actions/especies'
 
-export const SET_VISIBLE_VIVEROS = 'SET_VISIBLE_VIVEROS'
-export const ADD_VIVEROS = 'ADD_VIVEROS'
+const mapVisibleViveros = viveros => (acc, id) => { acc[id] = viveros[id]; return acc }
+
+const loc = (key, array) => array.map(v => v.key).indexOf(key)
+
+function mergeTipos (tipos = {}, cantidad) {
+  tipos[cantidad.tipo] = (tipos[cantidad.tipo] || 0) + cantidad.cantidad
+
+  return tipos
+}
+
+function mergeViverosStock(viveros){
+  return function(stock, viveroId) {
+    return viveros[viveroId].properties.stock.reduce((mStk, vivStock) => {
+      mStk[vivStock.especie] = vivStock.cantidades.reduce(mergeTipos, mStk[vivStock.especie])
+      return mStk
+    }, stock)
+  }
+}
+
+function addTotal (stock) {
+  for(var especie in stock) {
+    stock[especie].total = Object.keys(stock[especie]).reduce((total, v) => total + stock[especie][v], 0)
+  }
+  return stock
+}
 
 function getTotales (stock) {
   return {
@@ -23,6 +46,9 @@ function getTotales (stock) {
     }
   }
 }
+
+export const SET_VISIBLE_VIVEROS = 'SET_VISIBLE_VIVEROS'
+export const ADD_VIVEROS = 'ADD_VIVEROS'
 
 export function setVisibleViveros(ids) {
   return async function (dispatch, getState) {
@@ -63,41 +89,13 @@ export function setVisibleViveros(ids) {
   }
 }
 
-const mapVisibleViveros = viveros => (acc, id) => { acc[id] = viveros[id]; return acc }
-
-const loc = (key, array) => array.map(v => v.key).indexOf(key)
-
-function mergeTipos (tipos = {}, cantidad) {
-  tipos[cantidad.tipo] = (tipos[cantidad.tipo] || 0) + cantidad.cantidad
-
-  return tipos
-}
-
-function mergeViverosStock(viveros){
-  return function(stock, viveroId) {
-    return viveros[viveroId].properties.stock.reduce((mStk, vivStock) => {
-      mStk[vivStock.especie] = vivStock.cantidades.reduce(mergeTipos, mStk[vivStock.especie])
-      return mStk
-    }, stock)
-  }
-}
-
-function addTotal (stock) {
-  for(var especie in stock) {
-    stock[especie].total = Object.keys(stock[especie]).reduce((total, v) => total + stock[especie][v], 0)
-  }
-  return stock
-}
-
 export default function reducer(state = {
-  visible: {},
   all: {},
   stock: {}
 }, action) {
   switch (action.type) {
     case SET_VISIBLE_VIVEROS:
       return Object.assign({}, state, {
-        visible: action.ids.reduce(mapVisibleViveros(state.all), {}),
         stock: addTotal(action.ids.reduce(mergeViverosStock(state.all), {}))
       })
     case ADD_VIVEROS:

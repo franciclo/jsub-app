@@ -3,15 +3,49 @@
 }
 
 .especie-card {
+  position: relative;
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 10px 10px 25px 10px;
+  border-radius: 3px;
   margin: 0 0 10px 0;
   background: #fff;
   cursor: pointer;
+  transition: 100ms all ease-in-out;
 }
 
 .especie-card:hover {
-  background: #f5f5f5;
+  background: #ffdf3d;
   margin-right: -10px;
+}
+
+.especie-card .counter {
+  border-radius: 20px;
+  background: #ffdf3d;
+  padding: 3px 9px 5px;
+  font-size: 13px;
+}
+
+.especie-card:hover .counter {
+  font-size: 20px;
+}
+
+.especie-card .label {
+  font-size: 17px;
+  margin: 0;
+}
+
+.especie-card .tamagnos {
+  position: absolute;
+  bottom: 7px;
+  width: 100%;
+}
+
+.especie-card .tamagnos span{
+  margin-right: 5px;
+  background: #b6e69e;
+  border-radius: 10px;
+  padding: 1px 7px 3px;
+  font-size: 11px;
+  color: #434343;
 }

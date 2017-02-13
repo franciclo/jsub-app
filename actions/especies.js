@@ -21,6 +21,7 @@ export function setVisibleEspecies(newIds) {
 }
 
 export const ACTIVE_ESPECIE = 'ACTIVE_ESPECIE'
+
 export function setActiveEspecie (especie) {
   return {
     type: ACTIVE_ESPECIE,

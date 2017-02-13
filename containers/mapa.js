@@ -70,17 +70,16 @@ class mapa extends Component {
   }
 }
 
-function setTotalViveros (viveros, especie) {
-  return Object.keys(viveros)
-    .map(viveroId => {
-      const vivero = viveros[viveroId]
-      return Object.assign({}, vivero,
-        { properties: { total: vivero.properties.totales[especie] } })
-      })
-}
-
 const Mapa = connect(
-  state => ({ viveros: setTotalViveros(state.viveros.all, state.especies.active) }),
+  state => ({
+    viveros: Object.keys(state.viveros.all)
+      .map(viveroId => {
+        const vivero = state.viveros.all[viveroId]
+        return Object.assign({}, vivero, {
+          properties: { total: vivero.properties.totales[state.especies.active] }
+        })
+      })
+  }),
   { setVisibleViveros }
 )(mapa)
 

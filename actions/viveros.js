@@ -1,89 +1,108 @@
 import fetch from 'isomorphic-fetch'
 import config from '../config.json'
-import { fetchEspecies } from '../actions/especies'
+import { setVisibleEspecies } from '../actions/especies'
 
 export const SET_VISIBLE_VIVEROS = 'SET_VISIBLE_VIVEROS'
 export const ADD_VIVEROS = 'ADD_VIVEROS'
 
-export function setVisibleViveros(ids) {
-  return (dispatch, getState) => {
-    const { viveros, especies } = getState()
-    const savedEspeciesIds = new Set(Object.keys(especies))
-    const savedViverosIds = new Set(viveros.all.map(v => v.properties.id))
-    const newIds = ids.filter(id => !savedViverosIds.has(id))
+function getTotales (stock) {
+  return {
+    ...stock
+      .reduce((especiesAcc, subStock) => {
+        const hasEspecie = ~Object.keys(especiesAcc).indexOf(subStock.especie)
+        const subTotal = subStock.cantidades.reduce((total, tamagno) => total + tamagno.cantidad, 0)
+        especiesAcc[subStock.especie] = hasEspecie ? especiesAcc[subStock.especie] + subTotal : subTotal
+        return especiesAcc
+      },{}),
+    ...{
+      ALL: stock.reduce((acc, subStock) => {
+        const total = subStock.cantidades.reduce((acc, item) => item.cantidad + acc, 0)
 
-    if (newIds.length !== 0) {
-      console.log('hay nuevos viveros', ids, [...savedViverosIds], newIds)
-      fetch(`${config.API_ROOT}/viveros/stock/${newIds.join(',')}`)
-        .then(res => res.ok && res.json())
-        .then(result => {
-          const resultEspecies = result
-            .map(viv => {
-              return viv.properties.stock.map(st => st.especie)
-            })
-            .reduce((acc, esp) => acc.concat(esp), [])
-            .filter(esp => esp)
-          const newEspecies = [...new Set(resultEspecies)].filter(esp => !savedEspeciesIds.has(esp))
-          if (newEspecies.length !== 0) {
-            console.log('hay nuevas especies', resultEspecies, [...savedEspeciesIds], newEspecies)
-            dispatch(fetchEspecies(newEspecies))
-          }
-
-          dispatch({
-            type: ADD_VIVEROS,
-            viveros: result
-          })
-
-          dispatch({
-            type: SET_VISIBLE_VIVEROS,
-            ids
-          })
-        })
-        .catch(err => { console.error('fetch stock error ', err) })
-    } else {
-      dispatch({
-        type: SET_VISIBLE_VIVEROS,
-        ids
-      })
+        return total + acc
+      }, 0)
     }
   }
 }
 
-export function totalPorEspecie (vivero) {
-  return vivero.properties.stock
-    .reduce((especiesAcc, stock) => {
-      const hasEspecie = ~Object.keys(especiesAcc).indexOf(stock.especie)
-      const subTotal = stock.cantidades.reduce((total, tamagno) => total + tamagno.cantidad, 0)
-      especiesAcc[stock.especie] = hasEspecie ? especiesAcc[stock.especie] + subTotal : subTotal
-      return especiesAcc
-    },{})
-}
+export function setVisibleViveros(ids) {
+  return async function (dispatch, getState) {
+    const { viveros, especies } = getState()
 
-export const ACTIVE_ESPECIE = 'ACTIVE_ESPECIE'
-export function setActiveEspecie (especie) {
-  return {
-    type: ACTIVE_ESPECIE,
-    especie
+    const newIds = ids.filter(id => !~Object.keys(viveros.all).indexOf(id))
+
+    if (newIds.length === 0) return dispatch({
+      type: SET_VISIBLE_VIVEROS,
+      ids
+    })
+
+    console.log('hay nuevos viveros', ids, Object.keys(viveros.all), newIds)
+    const result = await fetch(`${config.API_ROOT}/viveros/${newIds.join(',')}`)
+      .then(res => res.ok && res.json())
+    if (!result) return console.error('viveros response not ok')
+
+    dispatch({
+      type: ADD_VIVEROS,
+      viveros: result.reduce(
+        (acc, viv) => {
+          viv.properties.totales = getTotales(viv.properties.stock)
+          acc[viv.properties.id] = viv
+          return acc
+        },
+        {}
+      )
+    })
+
+    dispatch({
+      type: SET_VISIBLE_VIVEROS,
+      ids
+    })
+
+    const newEspeciesIds = Object.keys(getState().viveros.stock)
+      .filter(id => !~Object.keys(especies.all).indexOf(id))
+    if(newEspeciesIds.length > 0) dispatch(setVisibleEspecies(newEspeciesIds))
   }
 }
 
+const mapVisibleViveros = viveros => (acc, id) => { acc[id] = viveros[id]; return acc }
+
+const loc = (key, array) => array.map(v => v.key).indexOf(key)
+
+function mergeTipos (tipos = {}, cantidad) {
+  tipos[cantidad.tipo] = (tipos[cantidad.tipo] || 0) + cantidad.cantidad
+
+  return tipos
+}
+
+function mergeViverosStock(viveros){
+  return function(stock, viveroId) {
+    return viveros[viveroId].properties.stock.reduce((mStk, vivStock) => {
+      mStk[vivStock.especie] = vivStock.cantidades.reduce(mergeTipos, mStk[vivStock.especie])
+      return mStk
+    }, stock)
+  }
+}
+
+function addTotal (stock) {
+  for(var especie in stock) {
+    stock[especie].total = Object.keys(stock[especie]).reduce((total, v) => total + stock[especie][v], 0)
+  }
+  return stock
+}
+
 export default function reducer(state = {
-  visible: [],
-  all: [],
-  especie: 'ALL'
+  visible: {},
+  all: {},
+  stock: {}
 }, action) {
   switch (action.type) {
     case SET_VISIBLE_VIVEROS:
       return Object.assign({}, state, {
-        visible: action.ids
+        visible: action.ids.reduce(mapVisibleViveros(state.all), {}),
+        stock: addTotal(action.ids.reduce(mergeViverosStock(state.all), {}))
       })
     case ADD_VIVEROS:
       return Object.assign({}, state, {
-        all: [...state.all, ...action.viveros]
-      })
-    case ACTIVE_ESPECIE:
-      return Object.assign({}, state, {
-        especie: action.especie
+        all: {...state.all, ...action.viveros}
       })
     default:
       return state

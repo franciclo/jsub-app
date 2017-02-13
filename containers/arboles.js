@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
+import Immutable from 'immutable'
 import { connect } from 'react-redux'
 import EspecieCard from '../components/especie-card'
-import { totalPorEspecie, setActiveEspecie } from '../actions/viveros'
+import { setActiveEspecie } from '../actions/especies'
 
 class arboles extends Component {
   render() {
-    const { arboles, especies, handleActiveEspecie } = this.props
+    const { stock, especies, handleActiveEspecie } = this.props
     return (
       <div
         style={{
@@ -26,15 +27,18 @@ class arboles extends Component {
 
           }}>
           {
-            arboles && arboles.map((arbol, i) => {
-              return (
-                <EspecieCard
-                  key={i}
-                  cantidad={arbol.cantidad}
-                  especie={{ label: especies[arbol.especie], id: arbol.especie }}
-                  handleActiveEspecie={handleActiveEspecie} />
-              )
-            })
+            Object.keys(stock) && Object.keys(stock)
+              .sort((a, b) => stock[b].total - stock[a].total)
+              .map((especie, i) => {
+                if(!especies.all[especie]) return null
+                return (
+                  <EspecieCard
+                    key={i}
+                    cantidad={stock[especie].total}
+                    especie={{ label: especies.all[especie].label, id: especies.all[especie].especieId }}
+                    handleActiveEspecie={handleActiveEspecie} />
+                )
+              })
           }
         </div>
       </div>
@@ -42,32 +46,9 @@ class arboles extends Component {
   }
 }
 
-function getVisibleArboles(viveros, visibleIds) {
-  return viveros.reduce((arbolesAcc, vivero) => {
-    if(!~visibleIds.indexOf(vivero.properties.id)) return arbolesAcc
-
-    const viveroTotalPorEspecie = totalPorEspecie(vivero)
-
-    const especiesVisibles = arbolesAcc.map(a => a.especie)
-    Object.keys(viveroTotalPorEspecie).forEach(especie => {
-      const especieI = especiesVisibles.indexOf(especie)
-      if(~especieI) {
-        arbolesAcc[especieI].cantidad = arbolesAcc[especieI].cantidad + viveroTotalPorEspecie[especie]
-      }else {
-        arbolesAcc.push({
-          especie: especie,
-          cantidad: viveroTotalPorEspecie[especie]
-        })
-      }
-    })
-
-    return arbolesAcc
-  }, []).sort((a,b) => b.cantidad - a.cantidad)
-}
-
 const Arboles = connect(
   state => ({
-    arboles: getVisibleArboles(state.viveros.all, state.viveros.visible),
+    stock: state.viveros.stock,
     especies: state.especies
   }),
   dispatch => ({

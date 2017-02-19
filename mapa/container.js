@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { initMap } from '../utils/map'
-import { setVisibleViveros, totalPorEspecie } from '../actions/viveros'
+import initMap from './init-map'
+import { setVisibleProductores } from './module/visible'
 
 class mapa extends Component {
   constructor (props) {
@@ -14,42 +14,41 @@ class mapa extends Component {
     this.map = initMap(this.onMapLoad)
   }
 
-  getVisibleViveros = () => {
+  getVisibleProductores = () => {
     return () => {
       const features = this.map.queryRenderedFeatures({
          layers: ['viveros-points']
       }) || []
 
       const uniqueIds = [...new Set(features.map(f => f.properties.id))]
-      this.props.setVisibleViveros(uniqueIds)
+      this.props.setVisibleProductores(uniqueIds)
     }
   }
 
   onMapLoad = (e) => {
     this.setState({mapLoaded: true})
 
-    const isStockLoaded = this.map.isSourceLoaded('viveros-stock')
+    const isStockLoaded = this.map.isSourceLoaded('productores-stock')
     if(!isStockLoaded) return
-    this.map.off('tiledata', this.onMapLoad)
 
-    const getVV = this.getVisibleViveros()
-    this.map.on('movestart', getVV)
-    this.map.on('moveend', getVV)
-    getVV()
+    this.map.off('tiledata', this.onMapLoad)
+    this.map.on('movestart', this.getVisibleProductores)
+    this.map.on('moveend', this.getVisibleProductores)
+    this.getVisibleProductores()
   }
 
   render() {
     if (
       this.map &&
       this.state.mapLoaded &&
-      this.map.isSourceLoaded('viveros-stock')
+      this.map.isSourceLoaded('productores-stock')
     ) {
-      const { viveros } = this.props
+      const { productores } = this.props
 
-      this.map.getSource('viveros-stock')
+      this.map.getSource('productores-stock')
         .setData({
           type: 'FeatureCollection',
-          features: viveros
+          features: productores
         })
     }
 
@@ -72,15 +71,15 @@ class mapa extends Component {
 
 const Mapa = connect(
   state => ({
-    viveros: Object.keys(state.viveros.all)
-      .map(viveroId => {
-        const vivero = state.viveros.all[viveroId]
-        return Object.assign({}, vivero, {
-          properties: { total: vivero.properties.totales[state.especies.active] }
+    productores: Object.keys(state.mapa.productores)
+      .map(productorId => {
+        const productor = state.mapa.productores[productorId]
+        return Object.assign({}, productor, {
+          properties: { total: vivero.properties.totales[state.mapa.visible.activeProducto] }
         })
       })
   }),
-  { setVisibleViveros }
+  { setVisibleProductores }
 )(mapa)
 
 export default Mapa

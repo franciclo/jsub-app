@@ -1,8 +1,8 @@
-import config from '../config.json'
-import productorBg from '../layers/productor-bg.json'
-import productorCount from '../layers/productor-count.json'
-import clusterBg from '../layers/cluster-bg.json'
-import clusterCount from '../layers/cluster-count.json'
+import config from '../../config.json'
+import productorBg from './layers/productor-bg.json'
+import productorCount from './layers/productor-count.json'
+import clusterBg from './layers/cluster-bg.json'
+import clusterCount from './layers/cluster-count.json'
 
 function mapCenter() {
   let loc = [-58.442947, -34.539081]
@@ -52,7 +52,7 @@ const productoresStockSource = {
   clusterRadius: 15
 }
 
-export const initMap = (onLoad) => {
+export default function initMap (onLoad) {
   mapboxgl.accessToken = config.MAPBOX_ACCESS_TOKEN
   const map = new mapboxgl
     .Map({

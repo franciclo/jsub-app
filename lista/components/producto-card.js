@@ -1,16 +1,16 @@
 import React, {Component} from 'react'
 
-export default ({ especie, cantidades, handleActiveEspecie }) => (
+export default ({ producto, cantidades, handleActiveProducto }) => (
   <div
-    className="especie-card"
+    className="producto-card"
     onMouseEnter={e => {
-      handleActiveEspecie(especie.id)
+      handleActiveProducto(producto.id)
     }}
     onMouseLeave={e => {
-      handleActiveEspecie('ALL')
+      handleActiveProducto('ALL')
     }}>
     <h1 className="label">
-      { especie.label }
+      { producto.label }
     </h1>
     <span className="counter">
       {cantidades.total}
@@ -19,7 +19,7 @@ export default ({ especie, cantidades, handleActiveEspecie }) => (
       {
         Object.keys(cantidades)
           .filter(k => k !== 'total')
-          .map(c => <span key={c}>{c.split('').slice(0, 3)}: {cantidades[c]}</span>)
+          .map(c => <span key={c}>{c.split('').slice(0, 2)}: {cantidades[c]}</span>)
       }
     </div>
   </div>

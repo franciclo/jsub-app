@@ -1,17 +1,16 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import initStore from '../store/init-store.js'
-import {login, logout} from '../actions/user'
+import { login, logout } from '../usuario/module'
 import {
   getProfile,
   getJwtFromCookie,
   decodeToken,
   authenticate
-} from '../utils/auth'
-import {loadMasArboles} from '../actions/arboles'
+} from '../usuario/auth'
 import Home from '../layouts/home'
-import User from '../containers/user'
-import Arboles from '../containers/arboles'
-import Mapa from '../containers/mapa'
+import User from '../usuario/container'
+import Arboles from '../lista/container'
+import Mapa from '../mapa/container'
 
 export default class HomeIndex extends Component {
   static async getInitialProps ({ req, res }) {

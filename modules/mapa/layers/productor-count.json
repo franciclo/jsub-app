@@ -1,7 +1,7 @@
 {
   "id": "vivero-count",
   "type": "symbol",
-  "source": "viveros-stock",
+  "source": "productores-stock",
   "filter": ["!has", "point_count"],
   "layout": {
     "text-field": "{total}",

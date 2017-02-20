@@ -1,5 +1,6 @@
 import fetch from 'isomorphic-fetch'
-import config from '../config.json'
+import createReducer from '../../../store/create-reducer'
+import config from '../../../config.json'
 
 export function setVisibleProductos(newIds) {
   return async function(dispatch, getState) {
@@ -26,6 +27,8 @@ export function addProductos (productos) {
   }
 }
 
-export default const reducer = createReducer({}, {
+const reducer = createReducer({}, {
   ADD_PRODUCTOS: (state, action) => ({ ...state, ...action.productos })
 })
+
+export default reducer

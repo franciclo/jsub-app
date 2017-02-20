@@ -1,7 +1,7 @@
 {
   "id": "cluster-count",
   "type": "symbol",
-  "source": "viveros-stock",
+  "source": "productores-stock",
   "layout": {
     "text-field": "{point_count}",
     "text-font": [

@@ -1,10 +1,10 @@
 import fetch from 'isomorphic-fetch'
-import createReducer from '../../store/create-reducer'
-import config from '../../config.json'
+import createReducer from '../../../store/create-reducer'
+import config from '../../../config.json'
 import { getTotales } from './selectors'
 
 export function getProductores (ids) {
-  return fetch(`${config.API_ROOT}/productores/${newIds.join(',')}`)
+  return fetch(`${config.API_ROOT}/productores/${ids.join(',')}`)
     .then(res => res.ok && res.json())
     .then(res => {
       if (!res) return Promise.reject()
@@ -32,6 +32,8 @@ export function addProductores (productores) {
   }
 }
 
-export default const reducer = createReducer({}, {
+const reducer = createReducer({}, {
   ADD_PRODUCTORES: (state, action) => ({ ...state, ...action.productores })
 })
+
+export default reducer

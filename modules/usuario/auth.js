@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
 import fetch from 'isomorphic-fetch'
-import config from '../config.json'
+import config from '../../config.json'
 
 // get auth0 callback data from hash
 const getQueryParams = () => {

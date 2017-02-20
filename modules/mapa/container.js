@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import initMap from './init-map'
-import { setVisibleProductores } from './module/visible'
+import { visibleProductores as setVisibleProductores } from './module/visible'
 
 class mapa extends Component {
   constructor (props) {
@@ -27,14 +27,13 @@ class mapa extends Component {
 
   onMapLoad = (e) => {
     this.setState({mapLoaded: true})
-
     const isStockLoaded = this.map.isSourceLoaded('productores-stock')
     if(!isStockLoaded) return
 
     this.map.off('tiledata', this.onMapLoad)
-    this.map.on('movestart', this.getVisibleProductores)
-    this.map.on('moveend', this.getVisibleProductores)
-    this.getVisibleProductores()
+    this.map.on('movestart', this.getVisibleProductores())
+    this.map.on('moveend', this.getVisibleProductores())
+    this.getVisibleProductores()()
   }
 
   render() {

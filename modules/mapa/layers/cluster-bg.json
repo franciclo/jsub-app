@@ -1,7 +1,7 @@
 {
   "id": "cluster-background",
   "type": "circle",
-  "source": "viveros-stock",
+  "source": "productores-stock",
   "paint": {
     "circle-color": "rgb(211, 184, 51)",
     "circle-radius": 15

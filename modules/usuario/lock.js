@@ -1,5 +1,5 @@
 import uuid from 'uuid'
-import config from '../config.json'
+import config from '../../config.json'
 import { setSecret } from './auth'
 
 const getLock = (options) => {

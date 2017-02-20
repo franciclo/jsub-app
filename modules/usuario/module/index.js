@@ -1,7 +1,8 @@
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
-import {logout as logoutLock} from './lock'
-import {unsetToken} from './auth'
+import createReducer from '../../../store/create-reducer'
+import {logout as logoutLock} from '../lock'
+import {unsetToken} from '../auth'
 
 const LOGIN = 'LOGIN'
 export function login (profile) {
@@ -19,7 +20,7 @@ export function logout () {
   }
 }
 
-export default const reducer = createReducer({
+const reducer = createReducer({
     isAuthenticated: false,
     profile: {}
   }, {
@@ -32,3 +33,5 @@ export default const reducer = createReducer({
     profile: null
   } })
 })
+
+export default reducer

@@ -1,8 +1,8 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import loggerMiddleware from 'redux-logger'
-import usuario from '../usuario'
-import mapa from '../mapa'
+import usuario from '../modules/usuario/module'
+import mapa from '../modules/mapa/module'
 
 const reducer = combineReducers({
   usuario,
@@ -14,7 +14,7 @@ export default function initStore (initialState) {
     return createStore(reducer, initialState, applyMiddleware(thunkMiddleware))
   } else {
     if (!window.store) {
-      window.store = createStore(reducer, initialState, applyMiddleware(thunkMiddleware))//, loggerMiddleware()))
+      window.store = createStore(reducer, initialState, applyMiddleware(thunkMiddleware, loggerMiddleware()))
     }
     return window.store
   }

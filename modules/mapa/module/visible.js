@@ -1,3 +1,4 @@
+import createReducer from '../../../store/create-reducer'
 import { addTotal, mergeProductoresStock } from './selectors'
 import { getProductores } from './productores'
 import { getProductos } from './productos'
@@ -11,7 +12,7 @@ export function visibleProductores (ids) {
     const newProductoresIds = ids
       .filter(id => !~Object.keys(productores).indexOf(id))
 
-    if (newIds.length === 0) return dispatch({
+    if (newProductoresIds.length === 0) return dispatch({
       type: SET_VISIBLE_PRODUCTORES,
       ids
     })
@@ -49,13 +50,13 @@ function setActiveProducto (state, action) {
 }
 
 function setVisibleProductores (state, action) {
-  return { ...state, {
+  return { ...state, ...{
     productores: action.ids,
     productos: addTotal(action.ids.reduce(mergeProductoresStock(state.mapa.productores), {}))
   } }
 }
 
-export default const reducer = createReducer({
+const reducer = createReducer({
   activeProducto: 'ALL',
   productos: {},
   productores: []
@@ -63,3 +64,5 @@ export default const reducer = createReducer({
   ACTIVE_PRODUCTO: setActiveProducto,
   SET_VISIBLE_PRODUCTORES: setVisibleProductores
 })
+
+export default reducer

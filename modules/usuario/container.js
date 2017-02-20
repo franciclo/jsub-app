@@ -6,7 +6,7 @@ import { logout } from './module'
 import UserPic from './components/user-pic'
 import UserBox from './components/user-box'
 
-class user exrends Component {
+class User extends Component {
   constructor (props) {
     super(props)
     this.state = {
